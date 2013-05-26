@@ -3,30 +3,47 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>Untitled Document</title>
-<link href="file:///Macintosh HD/Users/nick/Sites/autolog/css/style.css" rel="stylesheet" type="text/css" />
+<link href="./css/style.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
 <?php
+
+// Create connection
+$logcon = mysqli_connect("mysql.idtso.com","","","idtsoservicelog");
+
+/* check connection */
+if (mysqli_connect_errno()) {
+    printf("Connect failed: %s\n", mysqli_connect_error());
+    exit();
+}
+		$query = "INSERT INTO `idtsoservicelog`.`servicelog` (`ID`, `Part Replaced`, `Date Replaced`, `Odometer`, `Volvo Part Number`, `New Part Origin`, `New Part Number`) VALUES (?,?,?,?,?,?,?)";
+		$stmt = mysqli_prepare($logcon, $query);
+		mysqli_stmt_bind_param($stmt, 'sssisss', $id, $partReplaced, $dateReplaced, $odometer, $volvoPartNum, $newPartOrigin, $newPartNum);
 		$partReplaced = $_POST["partReplaced"];
 		$dateReplaced = $_POST["dateReplaced"];
-		$odometer = $_POST["odometer"]; 
+		$odometer = $_POST["odometer"];
 		$volvoPartNum = $_POST["volvoPartNum"];
 		$newPartOrigin = $_POST["newPartOrigin"];
 		$newPartNum = $_POST["newPartNum"];
-// Create connection
-$con=mysqli_connect("mysql.idtso.com","","","");
-
- // Check connection
-if (mysqli_connect_errno($con))
-  {
-  echo "Failed to connect to MySQL: " . mysqli_connect_error();
-  }
-  else {
-	  	mysqli_query($con, "INSERT INTO servicelog (`ID`, `Part Replaced`, `Date Replaced`, `Odometer`, `Volvo Part Number`, `New Part Origin`, `New Part Number`) VALUES (NULL, $partReplaced, $dateReplaced, $odometer, $volvoPartNum, $newPartOrigin, $newPartNum)");
+		$id = NULL;
+		mysqli_stmt_execute($stmt);
+		printf("%d Row inserted.\n", mysqli_stmt_affected_rows($stmt));
 		echo "Mileage successfully saved in database.";
-  }
-  mysqli_close($con);
+		
+		$selectQuery = "SELECT * FROM `servicelog`";
+		//echo "Mileage successfully saved in database.";
+		//mysqli_query($logcon, $query);
+		/*$select = mysqli_query($logcon, $selectQuery);
+
+		while($row = mysqli_fetch_assoc($select)){
+			foreach($row as $cname => $cvalue){
+				print "$cname: $cvalue\t";
+			}
+			print "\r\n";
+		}*/
+ 
+  mysqli_close($logcon);
 ?>
 <div class="container">
   <div class="content">
