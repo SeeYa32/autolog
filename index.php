@@ -8,43 +8,49 @@
 
 <body>
 <div class="container">
+<p><a href="./inputform.php">Input Form</a></p>
   <div class="content">
     <h1>Enter Mileage</h1>
-    <form id="mileageInputForm" action="./index.php" method="post">
+    <form id="mileageInputForm" action="./index.php" method="get">
     Mileage: <input type="text" name="mileageInput" value="">
     <input type="submit">
     </form>
     <p><?php
-	$mileageSubmission = $_POST["mileageInput"];
+	$mileageSubmission = $_GET["mileageInput"];
 		if (empty($mileageSubmission) == false) { 
 			echo "You entered $mileageSubmission!";
 		}
 	?></p>
    <?php
-// Create connection
-$con=mysqli_connect("mysql.idtso.com","","","");
+	// Create connection
+	$con=mysqli_connect("mysql.idtso.com","","","idtsoservicelog");
 
- // Check connection
-if (mysqli_connect_errno($con))
-  {
-  echo "Failed to connect to MySQL: " . mysqli_connect_error();
-  }
-  else if ($mileageSubmission == "push") {
+	// Check connection
+	if (mysqli_connect_errno()) {
+		printf("Connect failed: %s\n", mysqli_connect_error());
+		exit();
+	}
+	if ($mileageSubmission == "push") {
 	    curl_setopt_array($pushPost = curl_init(), array(
 		CURLOPT_URL => "https://api.pushover.net/1/messages.json",
    		CURLOPT_POSTFIELDS => array(
-  		"token" => "",
+  		"token" => "", 
   		"user" => "",
   		"message" => "Your car needs servicing.",
 		)));
 		curl_setopt($pushPost, CURLOPT_RETURNTRANSFER, 1);
 		curl_exec($pushPost);
-		curl_close($pushPost);
-  }
-  else if (empty($mileageSubmission) == false) {
-	  	mysqli_query($con, "INSERT INTO main (`ID`, `name`, `age`) VALUES (NULL, '$mileageSubmission', '12')");
+		curl_close($pushPost); 
+	}
+	else if (empty($mileageSubmission) == false) {
+
+		$query =  "INSERT INTO `idtsoservicelog`.`mileage` (`ID`, `mileage`) VALUES (?,?)";
+		$id = NULL;
+	  	$stmt = mysqli_prepare($con, $query);
+		mysqli_stmt_bind_param($stmt, 'si', $id, $mileageSubmission);
+		mysqli_stmt_execute($stmt);
 		echo "Mileage successfully saved in database.";
-  }
+	}
 ?>
     <!-- end .content --></div>
   <!-- end .container --></div>
